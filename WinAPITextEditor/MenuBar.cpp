@@ -21,7 +21,7 @@ MenuBar::MenuBar(int x, int y, int width, int height, HWND hParent)
 	staticBrush = CreateSolidBrush(RGB(225, 225, 225));
 	RegisterClass(&wc);
 	hPen = CreatePen(PS_INSIDEFRAME, 1, RGB(192, 192, 192));
-	hWnd = CreateWindowEx(0,"MenuBar", "Name", WS_POPUP, x, y, width, height, hParent, LoadMenu((HINSTANCE)GetWindowLongPtr(hParent, GWL_HINSTANCE), MAKEINTRESOURCE(IDR_MENU1)), NULL, NULL);
+	hWnd = CreateWindowEx(0,"MenuBar", "Name", WS_CHILD, x, y, width, height, hParent, LoadMenu((HINSTANCE)GetWindowLongPtr(hParent, GWL_HINSTANCE), MAKEINTRESOURCE(IDR_MENU1)), NULL, NULL);
 	CategoryFont = CreateFont(16, 6, 0, 0, 1000, FALSE, FALSE, FALSE, RUSSIAN_CHARSET, OUT_CHARACTER_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial");
 
 	setWidth(width);
@@ -53,8 +53,8 @@ LRESULT MenuBar::WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		SetBkColor(hdc, RGB(225, 225, 225));
 		SelectObject(hdc, CategoryFont);
 		SetTextColor(hdc, RGB(64, 64, 64));
-		drawText(hdc, 225, 80, "Шрифт");
-		drawText(hdc, 445, 80, "Форматирование");
+		drawText(hdc, 225, 90, "Шрифт");
+		drawText(hdc, 445, 90, "Форматирование");
 		EndPaint(hWnd, &ps);
 	}; break;
 	case WM_MEASUREITEM:

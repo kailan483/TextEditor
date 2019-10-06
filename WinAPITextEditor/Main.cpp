@@ -2,18 +2,6 @@
 #include <vector>
 #include "MainWindow.h"
 // Main function for the console
-int main() {
-	setlocale(LC_ALL, "Russian");
-	// Calling the wWinMain function to start the GUI program
-	// Parameters:
-	// GetModuleHandle(NULL) - To get a handle to the current instance
-	// NULL - Previous instance is not needed
-	// NULL - Command line parameters are not needed
-	// 1 - To show the window normally
-	WinMain(GetModuleHandle(NULL), NULL, NULL, 1);
-
-	return 0;
-}
 
 int WINAPI WinMain(HINSTANCE hInstance,
 				   HINSTANCE hPrevInstance,

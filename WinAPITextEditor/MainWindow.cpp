@@ -93,8 +93,8 @@ MainWindow::MainWindow(HINSTANCE hInst)
 
 	//Получить размеры рабочей области экрана(без панели задач)
 	SystemParametersInfo(SPI_GETWORKAREA, 0, &workArea, 0);
-	setY(y);
-	setX(x);
+	setY(CW_USEDEFAULT);
+	setX(CW_USEDEFAULT);
 	setWidth(workArea.right);
 	setHeight(workArea.bottom);
 	WindowSizingType = WindowSizingTypes::EXPANDED;
@@ -102,7 +102,7 @@ MainWindow::MainWindow(HINSTANCE hInst)
 	yWindowBM = 0;
 	wWindowBM = 1200;
 	hWindowBM = 800;
-	hWnd = CreateWindow(ClassName.c_str(), Title.c_str(), WS_POPUP | WS_CLIPCHILDREN | WS_BORDER, CW_USEDEFAULT, CW_USEDEFAULT, getWidth(), getHeight(), NULL, NULL, hInst, NULL);
+	hWnd = CreateWindow(ClassName.c_str(), Title.c_str(), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_MAXIMIZE, x, y, getWidth(), getHeight(), NULL, LoadMenu(hInst, MAKEINTRESOURCE(IDR_MENU1)), hInst, NULL);
 	CreateObjects();
 	LoadColors();
 	doc->SetMargins(3, 2, 0.2, 0.2);
@@ -312,20 +312,14 @@ void MainWindow::CreateObjects()
 {
 	HFONT hFont = CreateFont(18, 7, 0, 0, FW_ULTRALIGHT, FALSE, FALSE, FALSE, RUSSIAN_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, PROOF_QUALITY, FF_MODERN, "Segoe UI");
 	Attach(hWnd, this);
-	clientArea = ClientArea(0, 148, getWidth(), getHeight() - 148, hWnd);
+	clientArea = ClientArea(0, 124, getWidth(), getHeight() - 124, hWnd);
 	Attach(clientArea.hWnd, &clientArea);
 	doc = new Document(&this->clientArea.hWnd,&hWnd, (HINSTANCE)GetWindowLong(this->hWnd, GWL_HINSTANCE), clientArea.getWidth(), clientArea.getHeight());
 	doc->Create(1);
 
 	titleBrush = CreateSolidBrush(RGB(237, 239, 238));
-	menuBar = MenuBar(0, 24, getWidth() - 2, 125, hWnd);
+	menuBar = MenuBar(0, 0, getWidth() - 2, 125, hWnd);
 	Attach(menuBar.hWnd, &menuBar);
-	cb = CloseButton(getWidth() - 28, 8, 16, 16, hWnd);
-	Attach(cb.hWnd, &cb);
-	eb = ExpandButton(getWidth() - 56, 8, 16, 16, hWnd);
-	Attach(eb.hWnd, &eb);
-	mb = MinimizeButton(getWidth() - 84, 8, 16, 16, hWnd);
-	Attach(mb.hWnd, &mb);
 	bb = MenuButton(130, 48, 24, 24, menuBar.hWnd, hWnd, L"images/bold.png", ID_BOLDBUTTON, ID_SETBOLD, "Выбрать полужирный шрифт", "Полужирный (CTRL + B)");
 	Attach(bb.hWnd, &bb);
 	sb = MenuButton(160, 48, 24, 24, menuBar.hWnd, hWnd, L"images/strikefont.png", ID_STRIKEBUTTON, ID_SETSTRIKE, "Зачеркнуть текст", "Зачеркнутый (CTRL + 5)");
@@ -418,12 +412,6 @@ void MainWindow::Collapse(CollapseMode collapseMode)
 		WindowSizingType = WindowSizingTypes::WINDOW_COLLAPSED;
 		SetPosition(0, 0);
 		SetWidthAndHeight(wWindowBM, hWindowBM);
-		cb.SetPosition(getWidth() - 25, cb.getY());
-		eb.SetPosition(getWidth() - 55, cb.getY());
-		mb.SetPosition(getWidth() - 85, mb.getY());
-		cb.Redraw(NULL);
-		eb.Redraw(NULL);
-		mb.Redraw(NULL);
 		menuBar.SetPosition(getX(), getY() + 25);
 		menuBar.SetWidthAndHeight(getWidth(), menuBar.getHeight());
 		bb.SetPosition(bb.getX(), bb.getY());
@@ -458,12 +446,6 @@ void MainWindow::Expand()
 	
 	SetPosition(workArea.left, workArea.top);
 	SetWidthAndHeight(workArea.right, workArea.bottom);
-	cb.SetPosition(getWidth() - 25, cb.getY());
-	eb.SetPosition(getWidth() - 55, cb.getY());
-	mb.SetPosition(getWidth() - 85, mb.getY());
-	cb.Redraw(NULL);
-	eb.Redraw(NULL);
-	mb.Redraw(NULL);
 	menuBar.SetPosition(getX(), getY() + 25);
 	menuBar.SetWidthAndHeight(getWidth(), menuBar.getHeight());
 	bb.SetPosition(bb.getX(), bb.getY());
@@ -476,10 +458,9 @@ void MainWindow::Expand()
 	doc->RescaleTables();
 	doc->LiftUpTheDialogs();	
 
-	Redraw(new RECT{xWindowBM + wWindowBM - 85,getY(),getWidth(),menuBar.getY()});
-	menuBar.Redraw(new RECT{ xWindowBM + wWindowBM,0,getWidth(),menuBar.getHeight()});
-	clientArea.Redraw(new RECT{ xWindowBM + wWindowBM - 1,0,getWidth(),clientArea.getHeight()});
-	SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+	Redraw(NULL);
+	menuBar.Redraw(NULL);
+	clientArea.Redraw(NULL);
 }
 //void MainWindow::RescalePositions()
 //{
@@ -521,7 +502,7 @@ void MainWindow::CheckAlignment()
 }
 
 LRESULT MainWindow::WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{	
+{
 	static LPNMHDR nmhdr;
 	static REQRESIZE* rqrsz;
 	static POINT mousePos, currentMousePos;
@@ -536,535 +517,399 @@ LRESULT MainWindow::WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 		bool dialogTermination = lpfr->Flags & FR_DIALOGTERM ? true : false;
 		bool replace = lpfr->Flags & FR_REPLACE ? true : false;
 		bool replaceAll = lpfr->Flags & FR_REPLACEALL ? true : false;
-		
+
 		if (findNext && lpfr->lpstrFindWhat[0] != '\0' && replace == false)
 			doc->Find(direction, matchCase, wholeWord, lpfr->lpstrFindWhat);
 		else if (replace == true && findNext == false)
 			doc->Replace(matchCase, wholeWord, lpfr->lpstrFindWhat, lpfr->lpstrReplaceWith);
 		else if (replaceAll == true)
-			doc->ReplaceAll(lpfr,matchCase,wholeWord);
+			doc->ReplaceAll(lpfr, matchCase, wholeWord);
 		if (dialogTermination)
 			doc->DestroyActiveDialog();
 
 	}
 	else
-	switch (msg)
-	{
-	
-	break;
-	case WM_NOTIFY:
-	{
-		nmhdr = (LPNMHDR)lParam;
-		rqrsz = (REQRESIZE*)lParam;
-		switch (nmhdr->code)
+		switch (msg)
 		{
-			//Handle caret moving
-		case EN_SELCHANGE:
+
+			break;
+		case WM_NOTIFY:
 		{
-			SELCHANGE* pSelChange = (SELCHANGE*)lParam;
-			memset(&cf2, 0, sizeof(CHARFORMAT2));
-			memset(&pf2, 0, sizeof(PARAFORMAT2));
-			cf2.cbSize = sizeof(CHARFORMAT2);
-			pf2.cbSize = sizeof(PARAFORMAT2);
-			SendMessage(nmhdr->hwndFrom, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)& cf2);
-			SendMessage(nmhdr->hwndFrom, EM_GETPARAFORMAT, 0, (LPARAM)& pf2);
-			bool boldStatus = cf2.dwEffects & CFE_BOLD;
-			bool strikeStatus = cf2.dwEffects & CFE_STRIKEOUT;
-			bool italicStatus = cf2.dwEffects & CFE_ITALIC;
-			bool underlineStatus = cf2.dwEffects & CFE_UNDERLINE;
-			bool upIndexStatus = cf2.yOffset > 0;
-			bool downIndexStatus = cf2.yOffset < 0;
-			int fontHeight = cf2.yHeight;
-			char fontname[LF_FACESIZE];
-			strcpy_s(fontname, cf2.szFaceName);
-			WinAPIWindow::sWndProc(fcb.hWnd, CHANGESTATE, (WPARAM)ID_FONTCOMBOBOX, (LPARAM)((LPCSTR)fontname));
-			WinAPIWindow::sWndProc(fzcb.hWnd, CHANGESTATE, (WPARAM)ID_FONTSIZECOMBOBOX, (LPARAM)(fontHeight));
-			SendMessage(this->fzcb.hWnd, CHANGESTATE, 1, LPARAM(true));
-			SendMessage(this->fcb.hWnd, CHANGESTATE, 1, LPARAM(fontHeight));
-			SendMessage(bb.hWnd, CHANGESTATE, 1, LPARAM(boldStatus));
-			SendMessage(sb.hWnd, CHANGESTATE, 1, LPARAM(strikeStatus));
-			SendMessage(ib.hWnd, CHANGESTATE, 1, LPARAM(italicStatus));
-			SendMessage(ufb.hWnd, CHANGESTATE, 1, LPARAM(underlineStatus));
-			SendMessage(uib.hWnd, CHANGESTATE, 1, LPARAM(upIndexStatus));
-			SendMessage(dib.hWnd, CHANGESTATE, 1, LPARAM(downIndexStatus));
-			CheckAlignment();
+			nmhdr = (LPNMHDR)lParam;
+			rqrsz = (REQRESIZE*)lParam;
+			switch (nmhdr->code)
+			{
+				//Handle caret moving
+			case EN_SELCHANGE:
+			{
+				SELCHANGE* pSelChange = (SELCHANGE*)lParam;
+				memset(&cf2, 0, sizeof(CHARFORMAT2));
+				memset(&pf2, 0, sizeof(PARAFORMAT2));
+				cf2.cbSize = sizeof(CHARFORMAT2);
+				pf2.cbSize = sizeof(PARAFORMAT2);
+				SendMessage(nmhdr->hwndFrom, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf2);
+				SendMessage(nmhdr->hwndFrom, EM_GETPARAFORMAT, 0, (LPARAM)&pf2);
+				bool boldStatus = cf2.dwEffects & CFE_BOLD;
+				bool strikeStatus = cf2.dwEffects & CFE_STRIKEOUT;
+				bool italicStatus = cf2.dwEffects & CFE_ITALIC;
+				bool underlineStatus = cf2.dwEffects & CFE_UNDERLINE;
+				bool upIndexStatus = cf2.yOffset > 0;
+				bool downIndexStatus = cf2.yOffset < 0;
+				int fontHeight = cf2.yHeight;
+				char fontname[LF_FACESIZE];
+				strcpy_s(fontname, cf2.szFaceName);
+				WinAPIWindow::sWndProc(fcb.hWnd, CHANGESTATE, (WPARAM)ID_FONTCOMBOBOX, (LPARAM)((LPCSTR)fontname));
+				WinAPIWindow::sWndProc(fzcb.hWnd, CHANGESTATE, (WPARAM)ID_FONTSIZECOMBOBOX, (LPARAM)(fontHeight));
+				SendMessage(this->fzcb.hWnd, CHANGESTATE, 1, LPARAM(true));
+				SendMessage(this->fcb.hWnd, CHANGESTATE, 1, LPARAM(fontHeight));
+				SendMessage(bb.hWnd, CHANGESTATE, 1, LPARAM(boldStatus));
+				SendMessage(sb.hWnd, CHANGESTATE, 1, LPARAM(strikeStatus));
+				SendMessage(ib.hWnd, CHANGESTATE, 1, LPARAM(italicStatus));
+				SendMessage(ufb.hWnd, CHANGESTATE, 1, LPARAM(underlineStatus));
+				SendMessage(uib.hWnd, CHANGESTATE, 1, LPARAM(upIndexStatus));
+				SendMessage(dib.hWnd, CHANGESTATE, 1, LPARAM(downIndexStatus));
+				CheckAlignment();
+			}; break;
+			}
 		}; break;
-		}
-	}; break;
-	case ID_SETBOLD:
-	{
-		auto& currentPage = doc->GetCurrentPage();
-		memset(&cf2, 0, sizeof(CHARFORMAT2));
-		cf2.cbSize = sizeof(CHARFORMAT2);
-		SendMessage(currentPage.hWnd, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)& cf2);
-		cf2.dwEffects ^= CFE_BOLD;
-		cf2.dwMask |= CFM_BOLD;
-		SendMessage(doc->GetCurrentPage().hWnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)& cf2);
-		SetFocus(currentPage.hWnd);
-	}; break;
-	case ID_SETSTRIKE:
-	{
-		auto& currentPage = doc->GetCurrentPage();
-		memset(&cf2, 0, sizeof(CHARFORMAT2));
-		cf2.cbSize = sizeof(CHARFORMAT2);
-		SendMessage(currentPage.hWnd, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)& cf2);
-		cf2.dwEffects ^= CFE_STRIKEOUT;
-		cf2.dwMask |= CFM_STRIKEOUT;
-		SendMessage(currentPage.hWnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)& cf2);
-		SetFocus(currentPage.hWnd);
-	}; break;
-	case ID_SETITALIC:
-	{
-		auto& currentPage = doc->GetCurrentPage();
-		memset(&cf2, 0, sizeof(CHARFORMAT2));
-		cf2.cbSize = sizeof(CHARFORMAT2);
-		SendMessage(currentPage.hWnd, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)& cf2);
-		cf2.dwEffects ^= CFE_ITALIC;
-		cf2.dwMask |= CFM_ITALIC;
-		SendMessage(currentPage.hWnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)& cf2);
-		SetFocus(currentPage.hWnd);
-	}; break;
-	case ID_SETUNDERLINE:
-	{
-		auto& currentPage = doc->GetCurrentPage();
-		memset(&cf2, 0, sizeof(CHARFORMAT2));
-		cf2.cbSize = sizeof(CHARFORMAT2);
-		SendMessage(currentPage.hWnd, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)& cf2);
-		cf2.dwEffects ^= CFE_UNDERLINE;
-		cf2.dwMask |= CFM_UNDERLINE;
-		SendMessage(currentPage.hWnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)& cf2);
-		SetFocus(currentPage.hWnd);
-	}; break;
-	case ID_SETUPINDEX:
-	{
-		auto& currentPage = doc->GetCurrentPage();
-		memset(&cf2, 0, sizeof(CHARFORMAT2));
-		cf2.cbSize = sizeof(CHARFORMAT2);
-		SendMessage(currentPage.hWnd, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)& cf2);
-		cf2.yOffset = cf2.yOffset > 0 ? 0 : cf2.yHeight / 2;
-		SendMessage(currentPage.hWnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)& cf2);
-		SetFocus(currentPage.hWnd);
-	}; break;
-	case ID_SETDOWNINDEX:
-	{
-		auto& currentPage = doc->GetCurrentPage();
-		memset(&cf2, 0, sizeof(CHARFORMAT2));
-		cf2.cbSize = sizeof(CHARFORMAT2);
-		SendMessage(currentPage.hWnd, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)& cf2);
-		cf2.yOffset = cf2.yOffset < 0 ? 0 : -cf2.yHeight / 2;
-		SendMessage(currentPage.hWnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)& cf2);
-		SetFocus(currentPage.hWnd);
-	}; break;
-	case ID_SETFONTSIZE:
-	{
-		auto& currentPage = doc->GetCurrentPage();
-		memset(&cf2, 0, sizeof(CHARFORMAT2));
-		cf2.cbSize = sizeof(CHARFORMAT2);
-		SendMessage(currentPage.hWnd, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)& cf2);
-		cf2.yHeight = (int)lParam * 20;
-		cf2.dwMask = CFM_SIZE;
-		int i = SendMessage(currentPage.hWnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)& cf2);
-		SetFocus(currentPage.hWnd);
-		break;
-	}
-	case ID_SETFONTNAME:
-	{
-		auto& currentPage = doc->GetCurrentPage();
-		LPCTSTR FontName = (LPCTSTR)lParam;
-		memset(&cf2, 0, sizeof(CHARFORMAT2));
-		cf2.cbSize = sizeof(CHARFORMAT2);
-
-		SendMessage(currentPage.hWnd, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)& cf2);
-		strcpy_s(cf2.szFaceName, FontName);
-		cf2.dwMask = CFM_FACE;
-		SendMessage(currentPage.hWnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)& cf2);
-		SetFocus(currentPage.hWnd);
-		break;
-	}
-	case ID_SETLEFTALIGN:
-	{
-		auto& currentPage = doc->GetCurrentPage();
-		memset(&pf2, 0, sizeof(PARAFORMAT2));
-		pf2.cbSize = sizeof(PARAFORMAT2);
-		SendMessage(currentPage.hWnd, EM_GETPARAFORMAT, 0, (LPARAM)& pf2);
-		pf2.dwMask = PFM_ALIGNMENT;
-		pf2.wAlignment = PFA_LEFT;
-		SendMessage(currentPage.hWnd, EM_SETPARAFORMAT, 0, (LPARAM)& pf2);
-		SetFocus(currentPage.hWnd);
-		CheckAlignment();
-	}; break;
-	case ID_SETRIGHTALIGN:
-	{
-		auto& currentPage = doc->GetCurrentPage();
-		memset(&pf2, 0, sizeof(PARAFORMAT2));
-		pf2.cbSize = sizeof(PARAFORMAT2);
-		SendMessage(currentPage.hWnd, EM_GETPARAFORMAT, 0, (LPARAM)& pf2);
-		pf2.dwMask = PFM_ALIGNMENT;
-		pf2.wAlignment = pf2.wAlignment == PFA_RIGHT ? PFA_LEFT : PFA_RIGHT;
-		SendMessage(currentPage.hWnd, EM_SETPARAFORMAT, 0, (LPARAM)& pf2);
-		SetFocus(currentPage.hWnd);
-		CheckAlignment();
-	}; break;
-	case ID_SETCENTERALIGN:
-	{
-		auto& currentPage = doc->GetCurrentPage();
-		memset(&pf2, 0, sizeof(PARAFORMAT2));
-		pf2.cbSize = sizeof(PARAFORMAT2);
-		SendMessage(currentPage.hWnd, EM_GETPARAFORMAT, 0, (LPARAM)& pf2);
-		pf2.dwMask = PFM_ALIGNMENT;
-		pf2.wAlignment = pf2.wAlignment == PFA_CENTER ? PFA_LEFT : PFA_CENTER;
-		SendMessage(currentPage.hWnd, EM_SETPARAFORMAT, 0, (LPARAM)& pf2);
-		SetFocus(currentPage.hWnd);
-		CheckAlignment();
-	}; break;
-	case ID_SETJUSTIFY:
-	{
-		auto& currentPage = doc->GetCurrentPage();
-		memset(&pf2, 0, sizeof(PARAFORMAT2));
-		pf2.cbSize = sizeof(PARAFORMAT2);
-		SendMessage(currentPage.hWnd, EM_GETPARAFORMAT, 0, (LPARAM)& pf2);
-		pf2.dwMask = PFM_ALIGNMENT;
-		pf2.wAlignment = pf2.wAlignment == PFA_JUSTIFY ? PFA_LEFT : PFA_JUSTIFY;
-		SendMessage(currentPage.hWnd, EM_SETPARAFORMAT, 0, (LPARAM)& pf2);
-		SetFocus(currentPage.hWnd);
-		CheckAlignment();
-		break;
-	}
-	case WM_RESTOREFOCUS:
-	{
-		SetFocus(doc->GetCurrentPage().hWnd);
-		break;
-	}
-	case ID_SAVEFILE:
-		doc->Save();
-		SetFocus(doc->GetCurrentPage().hWnd);
-		break;
-	case ID_OPEN:
-		doc->OpenFile();
-		SetFocus(doc->GetCurrentPage().hWnd);
-		break;
-	case ID_SAVEAS:
-		doc->SaveAs();
-		SetFocus(doc->GetCurrentPage().hWnd);
-		break;
-	case ID_CREATENEW:
-		doc->CreateNew();
-		SetFocus(doc->GetCurrentPage().hWnd);
-		break;
-	case ID_UNDO:
-		doc->Undo();
-		SetFocus(doc->GetCurrentPage().hWnd);
-		break;
-	case ID_REDO:
-		doc->Redo();
-		SetFocus(doc->GetCurrentPage().hWnd);
-		break;
-	case ID_CUT:
-		doc->Cut();
-		SetFocus(doc->GetCurrentPage().hWnd);
-		break;
-	case ID_COPY:
-		doc->Copy();
-		SetFocus(doc->GetCurrentPage().hWnd);
-		break;
-	case ID_PASTE:
-		doc->Paste();
-		SetFocus(doc->GetCurrentPage().hWnd);
-		break;
-	case ID_DELETE:
-		doc->DeleteText();
-		SetFocus(doc->GetCurrentPage().hWnd);
-		break;
-	case ID_SELECTALL:
-		doc->SelectAll();
-		SetFocus(doc->GetCurrentPage().hWnd);
-		break;
-	case ID_SELECTALLBUTTON:
-		doc->SelectAll();
-		SetFocus(doc->GetCurrentPage().hWnd);
-		break;
-	case ID_SEARCHBUTTON:
-		doc->CreateFindDialog();	
-		break;
-	case ID_SEARCHREPLACEBUTTON:
-		doc->CreateFindReplaceDialog();
-		break;
-	case ID_PRINT:
-		doc->Print();
-		break;
-	case ID_INSERTTABLE:
-	{
-		if (DialogBox(AppHinstance,
-			MAKEINTRESOURCE(IDD_DIALOG1),
-			this->hWnd,
-			(DLGPROC)InsertTableDlgProc) == IDOK)
-		{
-
-			doc->InsertTable(tableColumns, tableRows, doc->getWidth());
-			SetFocus(doc->GetCurrentPage().hWnd);
-
-		}
-		break;
-	}
-	case ID_SETTEXTCOLOR:
-	{
-		if (DialogBox(AppHinstance,
-			MAKEINTRESOURCE(IDD_DIALOG2),
-			this->hWnd,
-			(DLGPROC)MyColorProc) == IDOK)
+		case ID_SETBOLD:
 		{
 			auto& currentPage = doc->GetCurrentPage();
 			memset(&cf2, 0, sizeof(CHARFORMAT2));
 			cf2.cbSize = sizeof(CHARFORMAT2);
-			SendMessage(currentPage.hWnd, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)& cf2);
-			cf2.dwEffects = 0;
-			cf2.dwMask = CFM_COLOR;
-			cf2.crTextColor = selectedColor;
-			/*cf2.crBackColor = selectedColor;*/
-			SendMessage(currentPage.hWnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)& cf2);
-			SetFocus(currentPage.hWnd);
-		}
-		break;
-	}
-	case ID_TABLEPARAMS:
-	{
-		tableColumns = LOWORD(lParam);
-		tableRows = HIWORD(lParam);
-		break;
-	}
-	case WM_LBUTTONDBLCLK:
-	{
-		
-		POINT mPos;
-		GetCursorPos(&mPos);		
-		if (mPos.x - getX() < getWidth() && mPos.y - getY() < 25)
-		{
-			if (WindowSizingType == WindowSizingTypes::EXPANDED)
-			{				
-				Collapse(CollapseMode::COLLAPSE_IN_WINDOW);								
-			}
-			else if (WindowSizingType == WindowSizingTypes::WINDOW_COLLAPSED)
-			{								
-				Expand();
-			}
-		}
-	}; break;
-	case WM_LBUTTONDOWN:
-	{
-		GetCursorPos(&mousePos);
-		if (mousePos.x - getX() < getWidth() && mousePos.y - getY() < 25)
-		{
-			drag = true;			
-		}
-	}; break;
-	case WM_LBUTTONUP:
-	{
-		if (drag == true)
-		{
-			drag = false;
-			
-		}
-	}; break;
-	case WM_MOUSEMOVE:
-	{
-		
-		GetCursorPos(&currentMousePos);
-		//Drag window
-		if (drag)
-		{			
-			//Получить размеры рабочей области экрана(без панели задач)			
-			SystemParametersInfo(SPI_GETWORKAREA, 0, &workArea, 0);
-
-			RECT wndRect;
-
-			GetWindowRect(hWnd, &wndRect);
-
-			wndRect.left = wndRect.left + (currentMousePos.x - mousePos.x);
-			wndRect.top = wndRect.top + (currentMousePos.y - mousePos.y);
-			if (wndRect.left < 0) wndRect.left = 0;
-			if (wndRect.left + getWidth() > GetSystemMetrics(SM_CXSCREEN)) wndRect.left = GetSystemMetrics(SM_CXSCREEN) - getWidth();
-			if (wndRect.top < 0) wndRect.top = 0;
-			if (wndRect.top > workArea.bottom - 40) wndRect.top = workArea.bottom - 40;
-
-
-			SetPosition(wndRect.left, wndRect.top);
-			menuBar.SetPosition(wndRect.left, wndRect.top + 24);
-			mousePos = currentMousePos;
-
-		}
-	}; break;
-	case WM_DESTROY:
-	{
-		PostQuitMessage(0);
-	}; break;
-	case WM_PAINT:
-	{
-		PAINTSTRUCT ps;
-		HDC hdc = BeginPaint(hWnd, &ps), MemDCExercising;
-		MemDCExercising = CreateCompatibleDC(hdc);
-
-		SelectObject(MemDCExercising, AppIcon);
-		// Copy the bits from the memory DC into the current dc
-		//TitleBar
-		RECT TitleRect;
-		TitleRect.left = 0;
-		TitleRect.top = 0;
-		TitleRect.right = getWidth();
-		TitleRect.bottom = 26;
-
-		auto result = FillRect(hdc, &TitleRect, titleBrush);
-		//Draw icon		
-		BitBlt(hdc, 7, 5, 450, 400, MemDCExercising, 0, 0, SRCCOPY);
-
-		EndPaint(hWnd, &ps);
-		ReleaseDC(hWnd, hdc);
-		DeleteDC(MemDCExercising);
-	}
-	break;	
-	//Button Handling
-	case WM_COMMAND:
-	{
-		switch (LOWORD(wParam))
-		{
-			// Process the accelerator and menu commands. 
-		case IDA_BOLD:
-		{
-			auto& currentPage = doc->GetCurrentPage();
-			memset(&cf2, 0, sizeof(CHARFORMAT2));
-			cf2.cbSize = sizeof(CHARFORMAT2);
-			SendMessage(currentPage.hWnd, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)& cf2);
+			SendMessage(currentPage.hWnd, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf2);
 			cf2.dwEffects ^= CFE_BOLD;
 			cf2.dwMask |= CFM_BOLD;
-			SendMessage(doc->GetCurrentPage().hWnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)& cf2);
+			SendMessage(doc->GetCurrentPage().hWnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf2);
 			SetFocus(currentPage.hWnd);
-			break;
-		}
-
-		case IDA_ITALIC:
+		}; break;
+		case ID_SETSTRIKE:
 		{
 			auto& currentPage = doc->GetCurrentPage();
 			memset(&cf2, 0, sizeof(CHARFORMAT2));
 			cf2.cbSize = sizeof(CHARFORMAT2);
-			SendMessage(currentPage.hWnd, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)& cf2);
-			cf2.dwEffects ^= CFE_ITALIC;
-			cf2.dwMask |= CFM_ITALIC;
-			SendMessage(currentPage.hWnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)& cf2);
-			SetFocus(currentPage.hWnd);
-			break;
-		}
-		case IDA_UNDERSTRIKE:
-		{
-			auto& currentPage = doc->GetCurrentPage();
-			memset(&cf2, 0, sizeof(CHARFORMAT2));
-			cf2.cbSize = sizeof(CHARFORMAT2);
-			SendMessage(currentPage.hWnd, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)& cf2);
-			cf2.dwEffects ^= CFE_UNDERLINE;
-			cf2.dwMask |= CFM_UNDERLINE;
-			SendMessage(currentPage.hWnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)& cf2);
-			SetFocus(currentPage.hWnd);
-			break;
-		}
-		case IDA_STRIKE:
-		{
-			auto& currentPage = doc->GetCurrentPage();
-			memset(&cf2, 0, sizeof(CHARFORMAT2));
-			cf2.cbSize = sizeof(CHARFORMAT2);
-			SendMessage(currentPage.hWnd, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)& cf2);
+			SendMessage(currentPage.hWnd, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf2);
 			cf2.dwEffects ^= CFE_STRIKEOUT;
 			cf2.dwMask |= CFM_STRIKEOUT;
-			SendMessage(currentPage.hWnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)& cf2);
+			SendMessage(currentPage.hWnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf2);
+			SetFocus(currentPage.hWnd);
+		}; break;
+		case ID_SETITALIC:
+		{
+			auto& currentPage = doc->GetCurrentPage();
+			memset(&cf2, 0, sizeof(CHARFORMAT2));
+			cf2.cbSize = sizeof(CHARFORMAT2);
+			SendMessage(currentPage.hWnd, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf2);
+			cf2.dwEffects ^= CFE_ITALIC;
+			cf2.dwMask |= CFM_ITALIC;
+			SendMessage(currentPage.hWnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf2);
+			SetFocus(currentPage.hWnd);
+		}; break;
+		case ID_SETUNDERLINE:
+		{
+			auto& currentPage = doc->GetCurrentPage();
+			memset(&cf2, 0, sizeof(CHARFORMAT2));
+			cf2.cbSize = sizeof(CHARFORMAT2);
+			SendMessage(currentPage.hWnd, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf2);
+			cf2.dwEffects ^= CFE_UNDERLINE;
+			cf2.dwMask |= CFM_UNDERLINE;
+			SendMessage(currentPage.hWnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf2);
+			SetFocus(currentPage.hWnd);
+		}; break;
+		case ID_SETUPINDEX:
+		{
+			auto& currentPage = doc->GetCurrentPage();
+			memset(&cf2, 0, sizeof(CHARFORMAT2));
+			cf2.cbSize = sizeof(CHARFORMAT2);
+			SendMessage(currentPage.hWnd, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf2);
+			cf2.yOffset = cf2.yOffset > 0 ? 0 : cf2.yHeight / 2;
+			SendMessage(currentPage.hWnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf2);
+			SetFocus(currentPage.hWnd);
+		}; break;
+		case ID_SETDOWNINDEX:
+		{
+			auto& currentPage = doc->GetCurrentPage();
+			memset(&cf2, 0, sizeof(CHARFORMAT2));
+			cf2.cbSize = sizeof(CHARFORMAT2);
+			SendMessage(currentPage.hWnd, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf2);
+			cf2.yOffset = cf2.yOffset < 0 ? 0 : -cf2.yHeight / 2;
+			SendMessage(currentPage.hWnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf2);
+			SetFocus(currentPage.hWnd);
+		}; break;
+		case ID_SETFONTSIZE:
+		{
+			auto& currentPage = doc->GetCurrentPage();
+			memset(&cf2, 0, sizeof(CHARFORMAT2));
+			cf2.cbSize = sizeof(CHARFORMAT2);
+			SendMessage(currentPage.hWnd, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf2);
+			cf2.yHeight = (int)lParam * 20;
+			cf2.dwMask = CFM_SIZE;
+			int i = SendMessage(currentPage.hWnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf2);
 			SetFocus(currentPage.hWnd);
 			break;
 		}
-		case IDA_OPEN:
-			doc->OpenFile();
+		case ID_SETFONTNAME:
+		{
+			auto& currentPage = doc->GetCurrentPage();
+			LPCTSTR FontName = (LPCTSTR)lParam;
+			memset(&cf2, 0, sizeof(CHARFORMAT2));
+			cf2.cbSize = sizeof(CHARFORMAT2);
+
+			SendMessage(currentPage.hWnd, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf2);
+			strcpy_s(cf2.szFaceName, FontName);
+			cf2.dwMask = CFM_FACE;
+			SendMessage(currentPage.hWnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf2);
+			SetFocus(currentPage.hWnd);
+			break;
+		}
+		case ID_SETLEFTALIGN:
+		{
+			auto& currentPage = doc->GetCurrentPage();
+			memset(&pf2, 0, sizeof(PARAFORMAT2));
+			pf2.cbSize = sizeof(PARAFORMAT2);
+			SendMessage(currentPage.hWnd, EM_GETPARAFORMAT, 0, (LPARAM)&pf2);
+			pf2.dwMask = PFM_ALIGNMENT;
+			pf2.wAlignment = PFA_LEFT;
+			SendMessage(currentPage.hWnd, EM_SETPARAFORMAT, 0, (LPARAM)&pf2);
+			SetFocus(currentPage.hWnd);
+			CheckAlignment();
+		}; break;
+		case ID_SETRIGHTALIGN:
+		{
+			auto& currentPage = doc->GetCurrentPage();
+			memset(&pf2, 0, sizeof(PARAFORMAT2));
+			pf2.cbSize = sizeof(PARAFORMAT2);
+			SendMessage(currentPage.hWnd, EM_GETPARAFORMAT, 0, (LPARAM)&pf2);
+			pf2.dwMask = PFM_ALIGNMENT;
+			pf2.wAlignment = pf2.wAlignment == PFA_RIGHT ? PFA_LEFT : PFA_RIGHT;
+			SendMessage(currentPage.hWnd, EM_SETPARAFORMAT, 0, (LPARAM)&pf2);
+			SetFocus(currentPage.hWnd);
+			CheckAlignment();
+		}; break;
+		case ID_SETCENTERALIGN:
+		{
+			auto& currentPage = doc->GetCurrentPage();
+			memset(&pf2, 0, sizeof(PARAFORMAT2));
+			pf2.cbSize = sizeof(PARAFORMAT2);
+			SendMessage(currentPage.hWnd, EM_GETPARAFORMAT, 0, (LPARAM)&pf2);
+			pf2.dwMask = PFM_ALIGNMENT;
+			pf2.wAlignment = pf2.wAlignment == PFA_CENTER ? PFA_LEFT : PFA_CENTER;
+			SendMessage(currentPage.hWnd, EM_SETPARAFORMAT, 0, (LPARAM)&pf2);
+			SetFocus(currentPage.hWnd);
+			CheckAlignment();
+		}; break;
+		case ID_SETJUSTIFY:
+		{
+			auto& currentPage = doc->GetCurrentPage();
+			memset(&pf2, 0, sizeof(PARAFORMAT2));
+			pf2.cbSize = sizeof(PARAFORMAT2);
+			SendMessage(currentPage.hWnd, EM_GETPARAFORMAT, 0, (LPARAM)&pf2);
+			pf2.dwMask = PFM_ALIGNMENT;
+			pf2.wAlignment = pf2.wAlignment == PFA_JUSTIFY ? PFA_LEFT : PFA_JUSTIFY;
+			SendMessage(currentPage.hWnd, EM_SETPARAFORMAT, 0, (LPARAM)&pf2);
+			SetFocus(currentPage.hWnd);
+			CheckAlignment();
+			break;
+		}
+		case WM_RESTOREFOCUS:
+		{
 			SetFocus(doc->GetCurrentPage().hWnd);
 			break;
-		case IDA_SAVE:
+		}
+		case ID_SAVEFILE:
 			doc->Save();
 			SetFocus(doc->GetCurrentPage().hWnd);
 			break;
-		case IDA_FIND:
+		case ID_OPEN:
+			doc->OpenFile();
+			SetFocus(doc->GetCurrentPage().hWnd);
+			break;
+		case ID_SAVEAS:
+			doc->SaveAs();
+			SetFocus(doc->GetCurrentPage().hWnd);
+			break;
+		case ID_CREATENEW:
+			doc->CreateNew();
+			SetFocus(doc->GetCurrentPage().hWnd);
+			break;
+		case ID_UNDO:
+			doc->Undo();
+			SetFocus(doc->GetCurrentPage().hWnd);
+			break;
+		case ID_REDO:
+			doc->Redo();
+			SetFocus(doc->GetCurrentPage().hWnd);
+			break;
+		case ID_CUT:
+			doc->Cut();
+			SetFocus(doc->GetCurrentPage().hWnd);
+			break;
+		case ID_COPY:
+			doc->Copy();
+			SetFocus(doc->GetCurrentPage().hWnd);
+			break;
+		case ID_PASTE:
+			doc->Paste();
+			SetFocus(doc->GetCurrentPage().hWnd);
+			break;
+		case ID_DELETE:
+			doc->DeleteText();
+			SetFocus(doc->GetCurrentPage().hWnd);
+			break;
+		case ID_SELECTALL:
+			doc->SelectAll();
+			SetFocus(doc->GetCurrentPage().hWnd);
+			break;
+		case ID_SELECTALLBUTTON:
+			doc->SelectAll();
+			SetFocus(doc->GetCurrentPage().hWnd);
+			break;
+		case ID_SEARCHBUTTON:
 			doc->CreateFindDialog();
 			break;
-		case IDA_REPLACE:
+		case ID_SEARCHREPLACEBUTTON:
 			doc->CreateFindReplaceDialog();
 			break;
-		}
-		switch (HIWORD(wParam))
+		case ID_PRINT:
+			doc->Print();
+			break;
+		case ID_INSERTTABLE:
 		{
-		case EN_CHANGE:
-		{
-			HWND edit = (HWND)(lParam);
-			GETTEXTLENGTHEX gtlx;
-			gtlx.flags = GTL_DEFAULT;
-			gtlx.codepage = CP_ACP;
-			int charAmount = SendMessage(edit, EM_GETTEXTLENGTHEX, (WPARAM)& gtlx, 0);
-			if (charAmount == 0)
-				doc->ResetFindInfo();
+			if (DialogBox(AppHinstance,
+				MAKEINTRESOURCE(IDD_DIALOG1),
+				this->hWnd,
+				(DLGPROC)InsertTableDlgProc) == IDOK)
+			{
+
+				doc->InsertTable(tableColumns, tableRows, doc->getWidth());
+				SetFocus(doc->GetCurrentPage().hWnd);
+
+			}
 			break;
 		}
-		case BN_CLICKED:
+		case ID_SETTEXTCOLOR:
+		{
+			if (DialogBox(AppHinstance,
+				MAKEINTRESOURCE(IDD_DIALOG2),
+				this->hWnd,
+				(DLGPROC)MyColorProc) == IDOK)
+			{
+				auto& currentPage = doc->GetCurrentPage();
+				memset(&cf2, 0, sizeof(CHARFORMAT2));
+				cf2.cbSize = sizeof(CHARFORMAT2);
+				SendMessage(currentPage.hWnd, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf2);
+				cf2.dwEffects = 0;
+				cf2.dwMask = CFM_COLOR;
+				cf2.crTextColor = selectedColor;
+				/*cf2.crBackColor = selectedColor;*/
+				SendMessage(currentPage.hWnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf2);
+				SetFocus(currentPage.hWnd);
+			}
+			break;
+		}
+		case ID_TABLEPARAMS:
+		{
+			tableColumns = LOWORD(lParam);
+			tableRows = HIWORD(lParam);
+			break;
+		}
+		case WM_DESTROY:
+		{
+			PostQuitMessage(0);
+		}; break;
+		case WM_PAINT:
+		{
+			PAINTSTRUCT ps;
+			HDC hdc = BeginPaint(hWnd, &ps), MemDCExercising;
+			EndPaint(hWnd, &ps);
+		}
+		break;
+		//Button Handling
+		case WM_COMMAND:
 		{
 			switch (LOWORD(wParam))
 			{
-				/*SetFocus(NULL);*/
-			case ID_CLOSEBUTTON:
+				// Process the accelerator and menu commands. 
+			case IDA_BOLD:
 			{
-				PostQuitMessage(0);
-				return 0;
-			}; break;
-			case ID_EXPANDBUTTON:
-			{
-				if (WindowSizingType == WindowSizingTypes::EXPANDED)
-				{	
-					Collapse(CollapseMode::COLLAPSE_IN_WINDOW);					
-				}
-				else if (WindowSizingType == WindowSizingTypes::WINDOW_COLLAPSED)
-				{
-					Expand();					
-				}
-			}; break;
-			case ID_MINIMIZEBUTTON:
-			{
-				Collapse(CollapseMode::FULL_COLLAPSE);
-			}; break;
+				auto& currentPage = doc->GetCurrentPage();
+				memset(&cf2, 0, sizeof(CHARFORMAT2));
+				cf2.cbSize = sizeof(CHARFORMAT2);
+				SendMessage(currentPage.hWnd, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf2);
+				cf2.dwEffects ^= CFE_BOLD;
+				cf2.dwMask |= CFM_BOLD;
+				SendMessage(doc->GetCurrentPage().hWnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf2);
+				SetFocus(currentPage.hWnd);
+				break;
 			}
 
+			case IDA_ITALIC:
+			{
+				auto& currentPage = doc->GetCurrentPage();
+				memset(&cf2, 0, sizeof(CHARFORMAT2));
+				cf2.cbSize = sizeof(CHARFORMAT2);
+				SendMessage(currentPage.hWnd, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf2);
+				cf2.dwEffects ^= CFE_ITALIC;
+				cf2.dwMask |= CFM_ITALIC;
+				SendMessage(currentPage.hWnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf2);
+				SetFocus(currentPage.hWnd);
+				break;
+			}
+			case IDA_UNDERSTRIKE:
+			{
+				auto& currentPage = doc->GetCurrentPage();
+				memset(&cf2, 0, sizeof(CHARFORMAT2));
+				cf2.cbSize = sizeof(CHARFORMAT2);
+				SendMessage(currentPage.hWnd, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf2);
+				cf2.dwEffects ^= CFE_UNDERLINE;
+				cf2.dwMask |= CFM_UNDERLINE;
+				SendMessage(currentPage.hWnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf2);
+				SetFocus(currentPage.hWnd);
+				break;
+			}
+			case IDA_STRIKE:
+			{
+				auto& currentPage = doc->GetCurrentPage();
+				memset(&cf2, 0, sizeof(CHARFORMAT2));
+				cf2.cbSize = sizeof(CHARFORMAT2);
+				SendMessage(currentPage.hWnd, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf2);
+				cf2.dwEffects ^= CFE_STRIKEOUT;
+				cf2.dwMask |= CFM_STRIKEOUT;
+				SendMessage(currentPage.hWnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf2);
+				SetFocus(currentPage.hWnd);
+				break;
+			}
+			case IDA_OPEN:
+				doc->OpenFile();
+				SetFocus(doc->GetCurrentPage().hWnd);
+				break;
+			case IDA_SAVE:
+				doc->Save();
+				SetFocus(doc->GetCurrentPage().hWnd);
+				break;
+			case IDA_FIND:
+				doc->CreateFindDialog();
+				break;
+			case IDA_REPLACE:
+				doc->CreateFindReplaceDialog();
+				break;
+			}
+			switch (HIWORD(wParam))
+			{
+			case EN_CHANGE:
+			{
+				HWND edit = (HWND)(lParam);
+				GETTEXTLENGTHEX gtlx;
+				gtlx.flags = GTL_DEFAULT;
+				gtlx.codepage = CP_ACP;
+				int charAmount = SendMessage(edit, EM_GETTEXTLENGTHEX, (WPARAM)&gtlx, 0);
+				if (charAmount == 0)
+					doc->ResetFindInfo();
+				break;
+			}
+			}; break;
+			//process all other messages
+		default:return DefWindowProc(hWnd, msg, wParam, lParam);
 		}
-		}; break;
-	}; break;
-	//Rescaling size of the textfield
-	//case WM_SIZE:
-	//{
-	//	UINT mCode = wParam;
-	//	if (WindowSizingType == WindowSizingTypes::COLLAPSED && mCode == SIZE_RESTORED)
-	//	{
-	//		//Type of changing window size
-	//		int new_width = LOWORD(lParam);
-	//		int new_height = HIWORD(lParam);
-	//		cout << new_height << endl;
-	//		if (new_width > wWindowBM || new_height > hWindowBM) WindowSizingType = WindowSizingTypes::EXPANDED;
-	//		else WindowSizingType = WindowSizingTypes::WINDOW_COLLAPSED;
-	//		//Renew width and height
-	//		setWidth(LOWORD(lParam));
-	//		setHeight(HIWORD(lParam));
-	//		S
-	//		//Diff between old and new size
-	//		int xDiff = new_width - getWidth();
-	//		int yDiff = new_height - getHeight();
-
-	//		RECT r;
-	//		GetWindowRect(hWnd, &r);
-	//		setX(r.left);
-	//		setY(r.top);
-
-	//	}
-	//	/*ReplaceItems();*/
-	//	doc->GetCurrentPage().RescaleWidthWithMargins();
-	//}break;
-
-	//process all other messages
-	default:return DefWindowProc(hWnd, msg, wParam, lParam);
-	}
-};
+		};
+}

@@ -27,15 +27,6 @@
     <ClCompile Include="TextField.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="CloseButton.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="ExpandButton.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="MinimizeButton.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="MenuBar.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
@@ -86,16 +77,7 @@
     <ClInclude Include="TextField.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="CloseButton.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="ExpandButton.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="MinimizeButton.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="resource1.h">
@@ -152,6 +134,12 @@
       <Filter>Файлы ресурсов</Filter>
     </Image>
     <Image Include="toolbar1.bmp">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="bitmap1.bmp">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="images\40.bmp">
       <Filter>Файлы ресурсов</Filter>
     </Image>
   </ItemGroup>

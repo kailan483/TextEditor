@@ -16,6 +16,8 @@
 #define IDR_ACCELERATOR1                114
 #define IDD_DIALOG2                     115
 #define IDR_MENU2                       117
+#define IDB_BITMAP1                     119
+#define IDB_BITMAP2                     120
 #define IDC_EDIT1                       1013
 #define IDC_SPIN1                       1014
 #define IDC_EDIT2                       1015
@@ -109,7 +111,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        119
+#define _APS_NEXT_RESOURCE_VALUE        121
 #define _APS_NEXT_COMMAND_VALUE         40060
 #define _APS_NEXT_CONTROL_VALUE         1044
 #define _APS_NEXT_SYMED_VALUE           101

@@ -1,9 +1,6 @@
 #pragma once
 
 #include "WinAPIWindow.h"
-#include "CloseButton.h"
-#include "ExpandButton.h"
-#include "MinimizeButton.h"
 #include "MenuBar.h"
 #include <vector>
 #include <string>
@@ -40,9 +37,6 @@ private:
 	void CreateObjects();
 	void ReplaceItems();
 	/*TextField tf;*/
-	CloseButton cb;
-	ExpandButton eb;
-	MinimizeButton mb;
 	MenuBar menuBar;
 	HBITMAP AppIcon;
 	HICON taskBarIcon;
@@ -92,7 +86,6 @@ private:
 	CHARFORMAT2 cf2;
 	PARAFORMAT2 pf2;
 	HFONT font;
-	const int A4width = 210;
 	int tableRows, tableColumns;
 	int nPos;
 	int nOldPos;

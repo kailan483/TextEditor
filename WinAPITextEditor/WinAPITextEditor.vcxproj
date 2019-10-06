@@ -79,7 +79,7 @@
       <PreprocessorDefinitions>_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -121,10 +121,8 @@
   <ItemGroup>
     <ClCompile Include="ButtonWithLabel.cpp" />
     <ClCompile Include="ClientArea.cpp" />
-    <ClCompile Include="CloseButton.cpp" />
     <ClCompile Include="ComboBox.cpp" />
     <ClCompile Include="Document.cpp" />
-    <ClCompile Include="ExpandButton.cpp" />
     <ClCompile Include="FontComboBox.cpp" />
     <ClCompile Include="Fonts.cpp" />
     <ClCompile Include="Label.cpp" />
@@ -133,7 +131,6 @@
     <ClCompile Include="MenuBar.cpp" />
     <ClCompile Include="MenuButton.cpp" />
     <ClCompile Include="MenuButton2.cpp" />
-    <ClCompile Include="MinimizeButton.cpp" />
     <ClCompile Include="PixelsCentimetersConverter.cpp" />
     <ClCompile Include="StatusBar.cpp" />
     <ClCompile Include="TextField.cpp" />
@@ -143,10 +140,8 @@
   <ItemGroup>
     <ClInclude Include="ButtonWithLabel.h" />
     <ClInclude Include="ClientArea.h" />
-    <ClInclude Include="CloseButton.h" />
     <ClInclude Include="ComboBox.h" />
     <ClInclude Include="Document.h" />
-    <ClInclude Include="ExpandButton.h" />
     <ClInclude Include="FontComboBox.h" />
     <ClInclude Include="Fonts.h" />
     <ClInclude Include="Label.h" />
@@ -154,7 +149,6 @@
     <ClInclude Include="MenuBar.h" />
     <ClInclude Include="MenuButton.h" />
     <ClInclude Include="MenuButton2.h" />
-    <ClInclude Include="MinimizeButton.h" />
     <ClInclude Include="PixelsCentimetersConverter.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="resource1.h" />
@@ -164,6 +158,8 @@
     <ClInclude Include="WinAPIWindow.h" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="bitmap1.bmp" />
+    <Image Include="images\40.bmp" />
     <Image Include="images\AppIcon.png" />
     <Image Include="images\closeWindowIcon.png" />
     <Image Include="images\icon_bold.png" />

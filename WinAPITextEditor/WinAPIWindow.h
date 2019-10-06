@@ -82,7 +82,7 @@ public:
 		setX(x);
 		setY(y);
 		BOOL result = SetWindowPos(hWnd, NULL, x, y, 0, 0, SWP_NOSIZE | SWP_NOREDRAW);		
-		/*UpdateWindow(hWnd);*/
+		UpdateWindow(hWnd);
 	}
 	void SetWidthAndHeight(int width, int height)
 	{
