@@ -198,7 +198,7 @@ BOOL MainWindow::MyColorProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM l
 			b = !b;
 			if (b == true && colorIndex != 31)
 				ButtonColors[GetDlgCtrlID((HWND)lParam)] = colors[colorIndex];
-			return (INT_PTR)brushes[colorIndex > colorArraySize - 1 ? 0 : b ? colorIndex++ : colorIndex]; // a red brush created earlier
+			return (INT_PTR)brushes[colorIndex > colorArraySize - 1 ? 0 : b ? colorIndex++ : colorIndex];
 		}
 		else
 			return DKGRAY_BRUSH;
