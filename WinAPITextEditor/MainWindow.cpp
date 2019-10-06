@@ -342,9 +342,6 @@ void MainWindow::CreateObjects()
 		object.second->Show();
 		object.second->Update();
 	}
-	/*findButton.lbl->SetFont(hFont);
-	findChangeButton.lbl->SetFont(hFont);
-	selectAllButton.lbl->SetFont(hFont);*/
 	DeleteObject(hFont);
 	doc->Show();
 	font = CreateFont(16,
