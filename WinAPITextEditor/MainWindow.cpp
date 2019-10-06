@@ -26,33 +26,6 @@ COLORREF ccref[16] =
 
 };
 extern int FINDMSGSTRINGID;
-HWND CreateAHorizontalScrollBar(HWND hwndParent, int sbHeight, int sbWidth, HINSTANCE g_hInst)
-{
-	RECT rect;
-	// Get the dimensions of the parent window's client area;
-	SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0);
-
-	/*if (!GetClientRect(hwndParent, &rect))
-		return NULL;*/
-
-		// Create the scroll bar.
-	return (CreateWindowEx(
-		0,                      // no extended styles 
-		"SCROLLBAR",           // scroll bar control class 
-		(PTSTR)NULL,           // no window text 
-		WS_CHILD | WS_VISIBLE   // window styles  
-		| SBS_VERT,         // horizontal scroll bar style 
-		rect.right - sbWidth,              // horizontal position 
-		rect.bottom - sbHeight, // vertical position 
-		sbWidth,             // width of the scroll bar 
-		sbHeight,               // height of the scroll bar
-		hwndParent,             // handle to main window 
-		(HMENU)NULL,           // no menu 
-		g_hInst,                // instance owning this window 
-		(PVOID)NULL            // pointer not needed 
-	));
-}
-
 //Constructor
 MainWindow::MainWindow(HINSTANCE hInst)
 {
@@ -91,7 +64,7 @@ MainWindow::MainWindow(HINSTANCE hInst)
 
 	RegisterClass(&wc);
 
-	//Получить размеры рабочей области экрана(без панели задач)
+	//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ(пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ)
 	SystemParametersInfo(SPI_GETWORKAREA, 0, &workArea, 0);
 	setY(CW_USEDEFAULT);
 	setX(CW_USEDEFAULT);
@@ -125,10 +98,10 @@ BOOL MainWindow::InsertTableDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, L
 	{
 		auto spin1 = GetDlgItem(hwndDlg, IDC_SPIN1);
 		auto spin2 = GetDlgItem(hwndDlg, IDC_SPIN2);
-		ToolTip::Create(IDC_SPIN1, hwndDlg, "Введите целое число от 2 до 25");
-		ToolTip::Create(IDC_EDIT1, hwndDlg, "Введите целое число от 2 до 25");
-		ToolTip::Create(IDC_SPIN2, hwndDlg, "Введите целое число от 2 до 25");
-		ToolTip::Create(IDC_EDIT2, hwndDlg, "Введите целое число от 2 до 25");
+		ToolTip::Create(IDC_SPIN1, hwndDlg, "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ 2 пїЅпїЅ 25");
+		ToolTip::Create(IDC_EDIT1, hwndDlg, "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ 2 пїЅпїЅ 25");
+		ToolTip::Create(IDC_SPIN2, hwndDlg, "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ 2 пїЅпїЅ 25");
+		ToolTip::Create(IDC_EDIT2, hwndDlg, "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ 2 пїЅпїЅ 25");
 		SendMessage(spin1, UDM_SETPOS, 0, 2);
 		SendMessage(spin2, UDM_SETPOS, 0, 2);
 		SendMessage(spin1, UDM_SETRANGE, 0, (LPARAM)MAKELPARAM(25, 2));
@@ -192,7 +165,7 @@ BOOL MainWindow::InsertTableDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, L
 			int tableRows = GetDlgItemInt(hwndDlg, IDC_EDIT2, NULL, FALSE);
 			if (tableRows < minvalue2 || tableRows > maxvalue2 || tableColumns < minvalue1 || tableColumns > maxvalue1)
 			{
-				MessageBox(hwndDlg, "Недопустимое количество строк/столбцов!", "Ошибка", MB_ICONERROR);
+				MessageBox(hwndDlg, "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ!", "пїЅпїЅпїЅпїЅпїЅпїЅ", MB_ICONERROR);
 				return FALSE;
 			}
 			SendMessage(GetParent(hwndDlg), ID_TABLEPARAMS, 0, (LPARAM)MAKELPARAM(tableColumns, tableRows));
@@ -317,50 +290,50 @@ void MainWindow::CreateObjects()
 	titleBrush = CreateSolidBrush(RGB(237, 239, 238));
 	menuBar = MenuBar(0, 0, getWidth() - 2, 125, hWnd);
 	Attach(menuBar.hWnd, &menuBar);
-	bb = MenuButton(130, 48, 24, 24, menuBar.hWnd, hWnd, L"images/bold.png", ID_BOLDBUTTON, ID_SETBOLD, "Выбрать полужирный шрифт", "Полужирный (CTRL + B)");
+	bb = MenuButton(130, 48, 24, 24, menuBar.hWnd, hWnd, L"images/bold.png", ID_BOLDBUTTON, ID_SETBOLD, "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (CTRL + B)");
 	Attach(bb.hWnd, &bb);
-	sb = MenuButton(160, 48, 24, 24, menuBar.hWnd, hWnd, L"images/strikefont.png", ID_STRIKEBUTTON, ID_SETSTRIKE, "Зачеркнуть текст", "Зачеркнутый (CTRL + 5)");
+	sb = MenuButton(160, 48, 24, 24, menuBar.hWnd, hWnd, L"images/strikefont.png", ID_STRIKEBUTTON, ID_SETSTRIKE, "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (CTRL + 5)");
 	Attach(sb.hWnd, &sb);
-	ib = MenuButton(190, 48, 24, 24, menuBar.hWnd, hWnd, L"images/italic.png", ID_ITALICBUTTON, ID_SETITALIC, "Выбрать курсивный шрифт", "Курсивный (CTRL + I)");
+	ib = MenuButton(190, 48, 24, 24, menuBar.hWnd, hWnd, L"images/italic.png", ID_ITALICBUTTON, ID_SETITALIC, "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (CTRL + I)");
 	Attach(ib.hWnd, &ib);
-	ufb = MenuButton(220, 48, 24, 24, menuBar.hWnd, hWnd, L"images/underlined.png", ID_UNDERLINEBUTTON, ID_SETUNDERLINE, "Подчеркнуть текст", "Подчеркнутый (CTRL + U)");
+	ufb = MenuButton(220, 48, 24, 24, menuBar.hWnd, hWnd, L"images/underlined.png", ID_UNDERLINEBUTTON, ID_SETUNDERLINE, "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (CTRL + U)");
 	Attach(ufb.hWnd, &ufb);
-	uib = MenuButton(250, 48, 24, 24, menuBar.hWnd, hWnd, L"images/upIndex.png", ID_UPINDEX, ID_SETUPINDEX, "Сделать текст меньше и ниже, чем обычно", "Подстрочный");
+	uib = MenuButton(250, 48, 24, 24, menuBar.hWnd, hWnd, L"images/upIndex.png", ID_UPINDEX, ID_SETUPINDEX, "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ");
 	Attach(uib.hWnd, &uib);
-	dib = MenuButton(280, 48, 24, 24, menuBar.hWnd, hWnd, L"images/downIndex.png", ID_DOWNINDEX, ID_SETDOWNINDEX, "Сделать текст меньше и выше, чем обычно", "Надстрочный");
+	dib = MenuButton(280, 48, 24, 24, menuBar.hWnd, hWnd, L"images/downIndex.png", ID_DOWNINDEX, ID_SETDOWNINDEX, "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ");
 	Attach(dib.hWnd, &dib);
-	leftAlignButton = MenuButton(450, 48, 24, 24, menuBar.hWnd, hWnd, L"images/alignLeft.png", ID_LEFTALIGN, ID_SETLEFTALIGN, "Выравнивание текста по левому краю", "Выровнять текст по левому краю (CTRL + L)");
+	leftAlignButton = MenuButton(450, 48, 24, 24, menuBar.hWnd, hWnd, L"images/alignLeft.png", ID_LEFTALIGN, ID_SETLEFTALIGN, "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ (CTRL + L)");
 	Attach(leftAlignButton.hWnd, &leftAlignButton);
-	centerAlignButton = MenuButton(480, 48, 24, 24, menuBar.hWnd, hWnd, L"images/alignCenter.png", ID_CENTERALIGN, ID_SETCENTERALIGN, "Выравнивание текста по центру", "Выровнять текст по центру (CTRL + E)");
+	centerAlignButton = MenuButton(480, 48, 24, 24, menuBar.hWnd, hWnd, L"images/alignCenter.png", ID_CENTERALIGN, ID_SETCENTERALIGN, "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ (CTRL + E)");
 	Attach(centerAlignButton.hWnd, &centerAlignButton);
-	rightAlignButton = MenuButton(510, 48, 24, 24, menuBar.hWnd, hWnd, L"images/alignRight.png", ID_RIGHTALIGN, ID_SETRIGHTALIGN, "Выравнивание текста по правому краю", "Выровнять текст по правому краю (CTRL + R)");
+	rightAlignButton = MenuButton(510, 48, 24, 24, menuBar.hWnd, hWnd, L"images/alignRight.png", ID_RIGHTALIGN, ID_SETRIGHTALIGN, "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ (CTRL + R)");
 	Attach(rightAlignButton.hWnd, &rightAlignButton);
-	justifyButton = MenuButton(540, 48, 24, 24, menuBar.hWnd, hWnd, L"images/justify.png", ID_JUSTIFY, ID_SETJUSTIFY, "Выравнивание текста по ширине", "Выровнять текст по ширине");
+	justifyButton = MenuButton(540, 48, 24, 24, menuBar.hWnd, hWnd, L"images/justify.png", ID_JUSTIFY, ID_SETJUSTIFY, "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ");
 	Attach(justifyButton.hWnd, &justifyButton);
 	fcb = ComboBox<HFONT>(130, 16, 200, 350, menuBar.hWnd, ID_FONTCOMBOBOX);
 	Attach(fcb.hWnd, &fcb);
 
 	fzcb = ComboBox<int>(330, 16, 60, 350, menuBar.hWnd, ID_FONTSIZECOMBOBOX);
 	Attach(fzcb.hWnd, &fzcb);
-	InsertTableButton = MenuButton2(450, 16, 24, 24, menuBar.hWnd, hWnd, L"images/inserttable.png", ID_INSERTTABLEBUTTON, ID_INSERTTABLE, "Вставить таблицу", "Вставить таблицу");
+	InsertTableButton = MenuButton2(450, 16, 24, 24, menuBar.hWnd, hWnd, L"images/inserttable.png", ID_INSERTTABLEBUTTON, ID_INSERTTABLE, "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ");
 	Attach(InsertTableButton.hWnd, &InsertTableButton);
-	ColorButton = MenuButton2(480, 16, 24, 24, menuBar.hWnd, hWnd, L"images/letter.png", ID_COLORBUTTON, ID_SETTEXTCOLOR, "Изменить цвет текста", "Изменить цвет");
+	ColorButton = MenuButton2(480, 16, 24, 24, menuBar.hWnd, hWnd, L"images/letter.png", ID_COLORBUTTON, ID_SETTEXTCOLOR, "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ");
 	Attach(ColorButton.hWnd, &ColorButton);
-	leftButton = MenuButton2(25, 15, 24, 24, menuBar.hWnd, hWnd, L"images/left-arrow.png", ID_UNDO, ID_UNDO, "Отмена последнего действия", "Отменить (CTRL + Z)");
+	leftButton = MenuButton2(25, 15, 24, 24, menuBar.hWnd, hWnd, L"images/left-arrow.png", ID_UNDO, ID_UNDO, "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (CTRL + Z)");
 	Attach(leftButton.hWnd, &leftButton);
-	rightButton = MenuButton2(55, 15, 24, 24, menuBar.hWnd, hWnd, L"images/right-arrow.png", ID_REDO, ID_REDO, "Повторное выполнение последнего действия", "Вернуть (CTRL + Y)");
+	rightButton = MenuButton2(55, 15, 24, 24, menuBar.hWnd, hWnd, L"images/right-arrow.png", ID_REDO, ID_REDO, "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (CTRL + Y)");
 	Attach(rightButton.hWnd, &rightButton);
-	copyButton = MenuButton2(25, 45, 24, 24, menuBar.hWnd, hWnd, L"images/copy.png", ID_COPY, ID_COPY, "Копирование содержимого выделенного фрагмента в буфер обмена", "Копировать (CTRL + C)");
+	copyButton = MenuButton2(25, 45, 24, 24, menuBar.hWnd, hWnd, L"images/copy.png", ID_COPY, ID_COPY, "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (CTRL + C)");
 	Attach(copyButton.hWnd, &copyButton);
-	cutButton = MenuButton2(55, 45, 24, 24, menuBar.hWnd, hWnd, L"images/cut.png", ID_CUT, ID_CUT, "Перемещение содержимого выделенного фрагмента в буфер обмена", "Вырезать (CTRL + X)");
+	cutButton = MenuButton2(55, 45, 24, 24, menuBar.hWnd, hWnd, L"images/cut.png", ID_CUT, ID_CUT, "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (CTRL + X)");
 	Attach(cutButton.hWnd, &cutButton);
-	saveButton = MenuButton2(25, 75, 24, 24, menuBar.hWnd, hWnd, L"images/floppy.png", ID_SAVE, ID_SAVEFILE, "Сохранение документа", "Сохранить (CTRL + S)");
+	saveButton = MenuButton2(25, 75, 24, 24, menuBar.hWnd, hWnd, L"images/floppy.png", ID_SAVE, ID_SAVEFILE, "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (CTRL + S)");
 	Attach(saveButton.hWnd, &saveButton);
-	pasteButton = MenuButton2(55, 75, 24, 24, menuBar.hWnd, hWnd, L"images/paste.png", ID_PASTE, ID_PASTE, "Вставить содержимое из буфера обмена", "Вставить (CTRL + V)");
+	pasteButton = MenuButton2(55, 75, 24, 24, menuBar.hWnd, hWnd, L"images/paste.png", ID_PASTE, ID_PASTE, "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (CTRL + V)");
 	Attach(pasteButton.hWnd, &pasteButton);
-	findButton = new MenuButton2(590, 10, 24, 24, menuBar.hWnd, hWnd, L"images/find.png", ID_SEARCHBUTTON, ID_SEARCHBUTTON, "Найти", "Поиск текста в документе");
-	findReplaceButton = new MenuButton2(590, 40, 24, 24, menuBar.hWnd, hWnd, L"images/change.png", ID_SEARCHREPLACEBUTTON, ID_SEARCHREPLACEBUTTON, "Найти и заменить", "Замена текста в документе");
-	selectAllButton = new MenuButton2(590, 70, 24, 24, menuBar.hWnd, hWnd, L"images/select.png", ID_SELECTALLBUTTON, ID_SELECTALLBUTTON, "Выделить все", "Выделить весь текст в документе");
+	findButton = new MenuButton2(590, 10, 24, 24, menuBar.hWnd, hWnd, L"images/find.png", ID_SEARCHBUTTON, ID_SEARCHBUTTON, "пїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ");
+	findReplaceButton = new MenuButton2(590, 40, 24, 24, menuBar.hWnd, hWnd, L"images/change.png", ID_SEARCHREPLACEBUTTON, ID_SEARCHREPLACEBUTTON, "пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ");
+	selectAllButton = new MenuButton2(590, 70, 24, 24, menuBar.hWnd, hWnd, L"images/select.png", ID_SELECTALLBUTTON, ID_SELECTALLBUTTON, "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ");
 	Attach(findButton->hWnd, findButton);
 	Attach(findReplaceButton->hWnd, findReplaceButton);
 	Attach(selectAllButton->hWnd, selectAllButton);
