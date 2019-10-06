@@ -1,0 +1,14 @@
+.vs/
+.git/
+packages/
+Release/
+Debug/
+*.obj
+*.tlog
+*.enc
+*.sarif
+*.pdb
+*.idb
+*.log
+*.res
+x64/
