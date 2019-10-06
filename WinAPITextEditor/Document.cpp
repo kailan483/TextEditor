@@ -407,24 +407,33 @@ void Document::DestroyFindReplaceDialog()
 	findReplaceHwnd = NULL;
 }
 FINDTEXTEXW ftt;
+bool prevDirection;
 void Document::Find(bool direction, bool matchCase, bool wholeWord, LPCSTR strToFind)
 {
 	UINT flags = 0;
 	if (direction)
 	{
 		flags |= FR_DOWN;
-		if (strcmp(CStringA(this->strToFind), "") != 0 && strcmp(this->strToFind, strToFind) == 0)
-			findCr.cpMin += ftt.chrgText.cpMax - ftt.chrgText.cpMin;
+		if (strcmp(CStringA(this->strToFind), "") != 0 && strcmp(this->strToFind, strToFind) == 0 && (prevDirection == direction))
+		{
+		}
+			/*findCr.cpMin += ftt.chrgText.cpMax - ftt.chrgText.cpMin;*/
+		else if (direction != prevDirection)
+			findCr.cpMin = ftt.chrgText.cpMax;
 		else
 		{
 			findCr.cpMin = 0;
 			findCr.cpMax = -1;
 		}
+		prevDirection = direction;
 	}
 	else
 	{
-		if (strcmp(CStringA(this->strToFind), "") != 0 && strcmp(this->strToFind, strToFind) == 0 && !(findCr.cpMin == 0 && findCr.cpMax == -1))
-			findCr.cpMin -= ftt.chrgText.cpMax - ftt.chrgText.cpMin;
+		if (strcmp(CStringA(this->strToFind), "") != 0 && strcmp(this->strToFind, strToFind) == 0 && !(findCr.cpMin == 0 && findCr.cpMax == -1) && (prevDirection == direction))
+		{
+		}			
+		else if (direction != prevDirection)
+			findCr.cpMin = ftt.chrgText.cpMin;
 		else if (findCr.cpMin == 0 && findCr.cpMax == -1)
 		{
 			GETTEXTLENGTHEX gtlex;
@@ -436,6 +445,7 @@ void Document::Find(bool direction, bool matchCase, bool wholeWord, LPCSTR strTo
 				findCr.cpMin = count;
 				findCr.cpMax = 0;
 			}
+			
 		}
 		else
 		{
@@ -449,6 +459,7 @@ void Document::Find(bool direction, bool matchCase, bool wholeWord, LPCSTR strTo
 				findCr.cpMax = 0;
 			}
 		}
+		prevDirection = direction;
 	}
 	if (matchCase) flags |= FR_MATCHCASE;
 	if (wholeWord) flags |= FR_WHOLEWORD;
@@ -476,6 +487,7 @@ void Document::Find(bool direction, bool matchCase, bool wholeWord, LPCSTR strTo
 
 void Document::Replace(bool matchCase, bool wholeWord, LPCSTR strToFind, LPCSTR newString)
 {
+
 	CHARRANGE cr;
 	SendMessage(Page->hWnd, EM_EXGETSEL, 0, (LPARAM)& cr);
 	if (cr.cpMax != cr.cpMin)
@@ -498,7 +510,7 @@ void Document::Replace(bool matchCase, bool wholeWord, LPCSTR strToFind, LPCSTR 
 	int res = SendMessage(Page->hWnd, EM_FINDTEXTEXW, flags, (LPARAM)& ftt);
 	if (res != -1)
 	{
-		findCr.cpMin = ftt.chrgText.cpMax;
+		/*findCr.cpMin = ftt.chrgText.cpMax;*/
 		findCr.cpMax = -1;
 		SendMessage(Page->hWnd, EM_EXSETSEL, 0, (LPARAM)& ftt.chrgText);
 	}
@@ -559,9 +571,7 @@ void Document::CreateFindDialog()
 		fr.hwndOwner = *main;
 		fr.hInstance = (HINSTANCE)GetWindowLong(*(hwnd), GWL_HINSTANCE);
 		fr.lpstrFindWhat = (char*)findBuffer.c_str();
-		fr.wFindWhatLen = 65535;
-		/*fr.Flags = FR_ENABLEHOOK;
-		fr.lpfnHook = (LPFRHOOKPROC)FindProc;*/
+		fr.wFindWhatLen = 2000;
 		findHwnd = FindText(&fr);
 	}
 	else
@@ -576,9 +586,10 @@ void Document::CreateFindReplaceDialog()
 	{
 		if (FINDMSGSTRINGID == 0)
 			FINDMSGSTRINGID = RegisterWindowMessage(FINDMSGSTRING);
+		memset(&fr, 0, sizeof(fr));
 		findCr.cpMin = 0;
 		findCr.cpMax = -1;
-		memset(&fr, 0, sizeof(fr));
+		
 		memset(&findBuffer, 0, sizeof(findBuffer));
 		memset(&replaceBuffer, 0, sizeof(replaceBuffer));
 		findBuffer = GetSelectedText();
@@ -591,11 +602,9 @@ void Document::CreateFindReplaceDialog()
 		fr.hwndOwner = *main;
 		fr.hInstance = (HINSTANCE)GetWindowLong(*(hwnd), GWL_HINSTANCE);
 		fr.lpstrFindWhat = (char*)findBuffer.c_str();
-		fr.wFindWhatLen = 65535;
+		fr.wFindWhatLen = 2000;
 		fr.lpstrReplaceWith = (char*)replaceBuffer.c_str();
-		fr.wReplaceWithLen = 65535;
-		/*fr.Flags = FR_ENABLEHOOK;
-		fr.lpfnHook = (LPFRHOOKPROC)FindProc;*/
+		fr.wReplaceWithLen = 2000;
 		findReplaceHwnd = ReplaceText(&fr);
 	}
 	else
@@ -654,107 +663,3 @@ void Document::LiftUpTheDialogs()
 	if (findReplaceHwnd != NULL)
 		SetWindowPos(findReplaceHwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 }
-void Document::SetPageMargins(int pageNumber, double rightMargin, double leftMargin, double topMargin, double bottomMargin)
-{
-	//// TODO: Добавьте сюда код реализации.
-	//if (pageNumber >= 0 && pageNumber < Pages.size())
-	//{
-	//	Pages.at(pageNumber)->SetMargins(rightMargin, leftMargin, topMargin, bottomMargin);
-	//}
-}
-BOOL Document::Print()
-{
-	 PRINTDLG pd;
-	 ZeroMemory(&pd, sizeof(pd));
-	 pd.lStructSize = sizeof(pd);
-	 pd.hwndOwner = *main;	
-	 pd.Flags = PD_RETURNDC;	 
-	 if (PrintDlg(&pd))
-     {
-        HDC hDC = pd.hDC;
-        
-		DOCINFO di = { sizeof(di) };
-
-		if (!StartDoc(hDC, &di))
-		{
-			return FALSE;
-		}
-
-		int cxPhysOffset = GetDeviceCaps(hDC, PHYSICALOFFSETX);
-		int cyPhysOffset = GetDeviceCaps(hDC, PHYSICALOFFSETY);
-
-		int cxPhys = GetDeviceCaps(hDC, PHYSICALWIDTH);
-		int cyPhys = GetDeviceCaps(hDC, PHYSICALHEIGHT);
-
-		// Create "print preview". 
-		SendMessage(Page->hWnd, EM_SETTARGETDEVICE, (WPARAM)hDC, cxPhys / 2);
-
-		FORMATRANGE fr;
-
-		fr.hdc = hDC;
-		fr.hdcTarget = hDC;
-
-		// Set page rect to physical page size in twips.
-		fr.rcPage.top = 0;
-		fr.rcPage.left = 0;
-		fr.rcPage.right = MulDiv(cxPhys, 1440, GetDeviceCaps(hDC, LOGPIXELSX));
-		fr.rcPage.bottom = MulDiv(cyPhys, 1440, GetDeviceCaps(hDC, LOGPIXELSY));
-
-		// Set the rendering rectangle to the pintable area of the page.
-		fr.rc.left = cxPhysOffset;
-		fr.rc.right = cxPhysOffset + cxPhys;
-		fr.rc.top = cyPhysOffset;
-		fr.rc.bottom = cyPhysOffset + cyPhys;
-
-		SendMessage(Page->hWnd, EM_SETSEL, 0, (LPARAM)-1);          // Select the entire contents.
-		SendMessage(Page->hWnd, EM_EXGETSEL, 0, (LPARAM)& fr.chrg);  // Get the selection into a CHARRANGE.
-
-		BOOL fSuccess = TRUE;
-
-		// Use GDI to print successive pages.
-		while (fr.chrg.cpMin < fr.chrg.cpMax && fSuccess)
-		{
-			fSuccess = StartPage(hDC) > 0;
-
-			if (!fSuccess) break;
-
-			int cpMin = SendMessage(Page->hWnd, EM_FORMATRANGE, TRUE, (LPARAM)& fr);
-
-			if (cpMin <= fr.chrg.cpMin)
-			{
-				fSuccess = FALSE;
-				break;
-			}
-
-			fr.chrg.cpMin = cpMin;
-			
-			fSuccess = EndPage(hDC) > 0;
-			cout << fSuccess << endl;
-		}
-
-		SendMessage(Page->hWnd, EM_FORMATRANGE, FALSE, 0);
-
-		if (fSuccess)
-		{
-			EndDoc(hDC);
-		}
-		else
-
-		{
-			AbortDoc(hDC);
-		}
-
-		return fSuccess;
-     }
-}
-
-//int Document::GetPagesCount()
-//{
-//	// TODO: Добавьте сюда код реализации.
-//	return Pages.size();
-//}
-
-//void Document::PrintContent()
-//{
-//	cout << buffer << endl;
-//}

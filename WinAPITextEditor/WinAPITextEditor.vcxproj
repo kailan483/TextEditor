@@ -119,7 +119,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ButtonWithLabel.cpp" />
     <ClCompile Include="ClientArea.cpp" />
     <ClCompile Include="ComboBox.cpp" />
     <ClCompile Include="Document.cpp" />
@@ -138,7 +137,6 @@
     <ClCompile Include="WinAPIWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ButtonWithLabel.h" />
     <ClInclude Include="ClientArea.h" />
     <ClInclude Include="ComboBox.h" />
     <ClInclude Include="Document.h" />

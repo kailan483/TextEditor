@@ -3,8 +3,6 @@
 // Используется WinAPITextEditor.rc
 //
 #define IDB_PNG1                        101
-#define IDB_BITMAP1                     102
-#define IDB_BITMAP2                     103
 #define ID_BOLDBUTTON					(WM_USER + 1)
 #define ID_CLOSEBUTTON					(WM_USER + 2)
 #define ID_EXPANDBUTTON					(WM_USER + 3)

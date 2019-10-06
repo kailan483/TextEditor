@@ -14,9 +14,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
 	mw->Show();
 	mw->Update();
-	//HANDLE image = (HANDLE)::LoadImage(hInstance,MAKEINTRESOURCE(IDB_PNG1),IMAGE_ICON,0,0,LR_DEFAULTCOLOR);
 
-	//auto error = GetLastError();
 	HACCEL ha = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDR_ACCELERATOR1));
 	
 	MSG msg;

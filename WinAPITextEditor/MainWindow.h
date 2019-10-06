@@ -14,7 +14,6 @@
 #include "Document.h"
 #include "ToolTip.h"
 #include "ClientArea.h"
-#include "ButtonWithLabel.h"
 #include <TextServ.h>
 #include <commdlg.h>
 enum class WindowSizingTypes { EXPANDED = 2, COLLAPSED = 1, WINDOW_COLLAPSED = 0 };
@@ -92,7 +91,6 @@ private:
 	~MainWindow()
 	{
 		DeleteObject(titleBrush);
-		DeleteObject(font);
-		DeleteObject(ButtonWithLabel::labelFont);
+		DeleteObject(font);		
 	}
 };

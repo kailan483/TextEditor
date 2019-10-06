@@ -60,9 +60,6 @@
     <ClCompile Include="MenuButton2.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="ButtonWithLabel.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="Label.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
@@ -114,9 +111,6 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="MenuButton2.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="ButtonWithLabel.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="Label.h">

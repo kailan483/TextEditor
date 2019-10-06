@@ -5,7 +5,7 @@ COLORREF colors[colorArraySize];
 HBRUSH brushes[colorArraySize];
 std::map<int, COLORREF> ButtonColors;
 COLORREF selectedColor;
-COLORREF ccref[16] = 
+COLORREF ccref[16] =
 {
 	RGB(255,255,255),
 	RGB(255,255,0),
@@ -118,7 +118,7 @@ MainWindow::MainWindow(HINSTANCE hInst)
 }
 BOOL MainWindow::InsertTableDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	static int minvalue1 = 2, maxvalue1 = 25,minvalue2 = 2,maxvalue2 = 25;
+	static int minvalue1 = 2, maxvalue1 = 25, minvalue2 = 2, maxvalue2 = 25;
 	switch (message)
 	{
 	case WM_INITDIALOG:
@@ -175,9 +175,6 @@ BOOL MainWindow::InsertTableDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, L
 					SendMessage(editHwnd, EM_SETSEL, (WPARAM)textlen, (LPARAM)textlen);
 					break;
 				}
-
-				default:
-					break;
 				}
 			}
 
@@ -231,7 +228,7 @@ BOOL MainWindow::MyColorProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM l
 			return (INT_PTR)brushes[colorIndex > colorArraySize - 1 ? 0 : b ? colorIndex++ : colorIndex]; // a red brush created earlier
 		}
 		else
-		return DKGRAY_BRUSH;
+			return DKGRAY_BRUSH;
 	}
 	case WM_COMMAND:
 	{
@@ -314,7 +311,7 @@ void MainWindow::CreateObjects()
 	Attach(hWnd, this);
 	clientArea = ClientArea(0, 124, getWidth(), getHeight() - 124, hWnd);
 	Attach(clientArea.hWnd, &clientArea);
-	doc = new Document(&this->clientArea.hWnd,&hWnd, (HINSTANCE)GetWindowLong(this->hWnd, GWL_HINSTANCE), clientArea.getWidth(), clientArea.getHeight());
+	doc = new Document(&this->clientArea.hWnd, &hWnd, (HINSTANCE)GetWindowLong(this->hWnd, GWL_HINSTANCE), clientArea.getWidth(), clientArea.getHeight());
 	doc->Create(1);
 
 	titleBrush = CreateSolidBrush(RGB(237, 239, 238));
@@ -443,7 +440,7 @@ void MainWindow::Expand()
 
 	wWindowBM = wndRect.right - xWindowBM;
 	hWindowBM = wndRect.bottom - yWindowBM;
-	
+
 	SetPosition(workArea.left, workArea.top);
 	SetWidthAndHeight(workArea.right, workArea.bottom);
 	menuBar.SetPosition(getX(), getY() + 25);
@@ -456,7 +453,7 @@ void MainWindow::Expand()
 	doc->SetPosition(0, doc->getY());
 	doc->GetCurrentPage().RescaleWidthWithMargins();
 	doc->RescaleTables();
-	doc->LiftUpTheDialogs();	
+	doc->LiftUpTheDialogs();
 
 	Redraw(NULL);
 	menuBar.Redraw(NULL);
@@ -770,9 +767,6 @@ LRESULT MainWindow::WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 		case ID_SEARCHREPLACEBUTTON:
 			doc->CreateFindReplaceDialog();
 			break;
-		case ID_PRINT:
-			doc->Print();
-			break;
 		case ID_INSERTTABLE:
 		{
 			if (DialogBox(AppHinstance,
@@ -911,5 +905,5 @@ LRESULT MainWindow::WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 			//process all other messages
 		default:return DefWindowProc(hWnd, msg, wParam, lParam);
 		}
-		};
+	};
 }

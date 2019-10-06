@@ -39,7 +39,7 @@ private:
 	static FINDREPLACE fr;
 	static string findBuffer, replaceBuffer;
 	vector<tableInfo> tablePositions;
-	CHARRANGE findCr;
+	CHARRANGE findCr,findReplaceCr;
 	int pagesCount;
 	int currentPage;
 	TextField* Page;
@@ -125,7 +125,6 @@ public:
 	void RescaleTables();
 	void ResetFindInfo();
 	void LiftUpTheDialogs();
-	BOOL Print();
 	~Document()
 	{
 	
@@ -138,7 +137,6 @@ public:
 	}
 //	void HideAll();
 //	void ShowCurrentPage();
-	void SetPageMargins(int pageNumber, double rightMargin = 3, double leftMargin = 2, double topMargin = 2, double bottomMargin = 0.5);
 	const COMDLG_FILTERSPEC filters[1] =
 	{
 		{ L"RTF Files", L"*.rtf" },
